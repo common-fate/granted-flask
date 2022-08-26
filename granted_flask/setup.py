@@ -36,7 +36,7 @@ setup(
     license='MIT',
     author='Common Fate',
     author_email='hello@commonfate.io',
-    py_modules=['flask_shell_bpython'],
+    py_modules=['flask_shell_bpython','flask_shell_granted'],
     include_package_data=True,
     zip_safe=False,
     platforms='any',
