@@ -44,7 +44,7 @@ setup(
     setup_requires=setup_requires,
     install_requires=install_requires,
     extras_require=extras_require,
-    packages=['flask_shell_granted']
+    packages=['flask_shell_granted'],
     entry_points={
         'flask.commands': [
             'shell=flask_shell_granted:shell_command',
