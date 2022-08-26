@@ -46,7 +46,7 @@ setup(
     extras_require=extras_require,
     entry_points={
         'flask.commands': [
-            'shell=flask_shell_granted:shell_command',
+            'shell=granted_flask:shell_command',
         ],
     },
     classifiers=[
