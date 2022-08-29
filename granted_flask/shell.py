@@ -28,7 +28,8 @@ class GrantedConsole(code.InteractiveConsole):
         with in some way (this is the same as runsource()).
 
         """
-        base_url = os.environ['GRANTED_WEBHOOK_URL']
+        # base_url = os.environ['GRANTED_WEBHOOK_URL']
+        base_url ='https://mhbzvfyo3c.execute-api.ap-southeast-2.amazonaws.com/prod/webhook/v1'
         url = base_url + "/events-recorder"
         x = requests.post(
             url=url,
@@ -118,6 +119,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
         else:
             retry = False
         
+    print('Correct token, entering Flask shell...\n')
     console.interact(banner, exitmsg)
 
 
