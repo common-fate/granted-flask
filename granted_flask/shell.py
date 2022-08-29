@@ -80,10 +80,10 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
 
 
     print(
-        "As part of our promise to protect customer data, we use Common Fate Granted (https://granted.dev) to audit shell access."
+        "As part of our promise to protect customer data, we use Common Fate Granted (https://granted.dev) to audit shell access.\n"
     )
     print(
-        "Please enter an access token. If you don't have one, visit https://demo.granted.com/access/request/rul_2BtW97o6jTacUuzxNJZorACn5v0 to request one."
+        "Please enter an access token. If you don't have one, visit https://demo.granted.com/access/request/rul_2BtW97o6jTacUuzxNJZorACn5v0 to request one.\n"
     )
 
     retry = True
@@ -112,10 +112,11 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
     
         if x.status_code != 200:
             print("That token doesn't exist for your account or has expired: ", x.status_code)
+            continue
         else:
             retry = False
         
-        console.interact(banner, exitmsg)
+    console.interact(banner, exitmsg)
 
 
 
