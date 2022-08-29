@@ -66,17 +66,17 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
     """
 
     # Check if base url environment variable has been set before setting up the shell
-    if 'GRANTED_WEBHOOK_URL' not in os.environ:
-        print('GRANTED_WEBHOOK_URL (Granted deployment URL) is not set, to continue please set this in your environment')
-        print('For instructions on finding the Deployment URL. Follow these docs: ')
-        # url = input("Enter your Granted deployment URL: ")
+    # if 'GRANTED_WEBHOOK_URL' not in os.environ:
+    #     print('GRANTED_WEBHOOK_URL (Granted deployment URL) is not set, to continue please set this in your environment')
+    #     print('For instructions on finding the Deployment URL. Follow these docs: ')
+    #     # url = input("Enter your Granted deployment URL: ")
 
-        # # todo: validate input
+    #     # # todo: validate input
 
-        # os.environ["GRANTED_WEBHOOK_URL"] = url
+    #     # os.environ["GRANTED_WEBHOOK_URL"] = url
 
-        # print('done')
-        return
+    #     # print('done')
+    #     return
 
 
     print(
@@ -98,8 +98,10 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
                 import readline
             except ImportError:
                 pass
+            
         
-        base_url = os.environ['GRANTED_WEBHOOK_URL']
+        # base_url = os.environ['GRANTED_WEBHOOK_URL']
+        base_url ='https://mhbzvfyo3c.execute-api.ap-southeast-2.amazonaws.com/prod/webhook/v1'
         url = base_url + "/access-token"
         x = requests.post(
             url=url,
