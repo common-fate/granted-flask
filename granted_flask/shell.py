@@ -1,5 +1,6 @@
 
 from __future__ import absolute_import, division, print_function
+from operator import truediv
 
 import os
 import sys
@@ -66,7 +67,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
 
     # Check if base url environment variable has been set before setting up the shell
     if 'GRANTED_WEBHOOK_URL' not in os.environ:
-        print('Granted deployment URL is not set, to continue please set this in your environment')
+        print('GRANTED_WEBHOOK_URL (Granted deployment URL) is not set, to continue please set this in your environment')
         print('For instructions on finding the Deployment URL. Follow these docs: ')
         # url = input("Enter your Granted deployment URL: ")
 
@@ -84,29 +85,36 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
     print(
         "Please enter an access token. If you don't have one, visit https://demo.granted.com/access/request/rul_2BtW97o6jTacUuzxNJZorACn5v0 to request one."
     )
-    token = getpass.getpass("Access token: ")
-    console = GrantedConsole(local)
-    if readfunc is not None:
-        console.raw_input = readfunc  
-    else:
-        try:
-            import readline
-        except ImportError:
-            pass
-    
-    base_url = os.environ['GRANTED_WEBHOOK_URL']
-    url = base_url + "/access-token"
-    x = requests.post(
-        url=url,
+
+    retry = True
+
+    while retry:
+        token = getpass.getpass("Access token: ")
+        console = GrantedConsole(local)
+        if readfunc is not None:
+            console.raw_input = readfunc  
+        else:
+            try:
+                import readline
+            except ImportError:
+                pass
         
-        headers={
-            "X-Granted-Request": token,
-            "Content-Type": "application/json",
-        },
-    )
-    if x.status_code != 200:
-        print("That token doesn't exist for your account or has expired: ", x.status_code)
-    else:
+        base_url = os.environ['GRANTED_WEBHOOK_URL']
+        url = base_url + "/access-token"
+        x = requests.post(
+            url=url,
+            
+            headers={
+                "X-Granted-Request": token,
+                "Content-Type": "application/json",
+            },
+        )
+    
+        if x.status_code != 200:
+            print("That token doesn't exist for your account or has expired: ", x.status_code)
+        else:
+            retry = False
+        
         console.interact(banner, exitmsg)
 
 
