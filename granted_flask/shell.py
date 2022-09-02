@@ -12,6 +12,7 @@ import getpass
 import os
 from flask.cli import with_appcontext
 
+token = ""
 
 class GrantedConsole(code.InteractiveConsole):
     def push(self, line):
@@ -34,7 +35,7 @@ class GrantedConsole(code.InteractiveConsole):
             url=url,
             json={"data": {"command": line}},
             headers={
-                "X-Granted-Request": "expired",
+                "X-Granted-Request": token,
                 "Content-Type": "application/json",
             },
         )
@@ -67,8 +68,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
 
     # Check if base url environment variable has been set before setting up the shell
     if 'GRANTED_WEBHOOK_URL' not in os.environ:
-        print('GRANTED_WEBHOOK_URL (Granted deployment URL) is not set, to continue please set this in your environment')
-        print('For instructions on finding the Deployment URL. Follow these docs: ')
+        print('GRANTED_WEBHOOK_URL (Granted deployment URL) is not set, if you are seeing this contact your administrator.')
         
         return
 
@@ -77,7 +77,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
         "As part of our promise to protect customer data, we use Common Fate Granted (https://granted.dev) to audit shell access.\n"
     )
     print(
-        "Please enter an access token. If you don't have one, visit https://demo.granted.com/access/request/rul_2BtW97o6jTacUuzxNJZorACn5v0 to request one.\n"
+        "Please enter an access token.\n"
     )
 
     retry = True
