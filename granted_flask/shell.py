@@ -40,7 +40,7 @@ class GrantedConsole(code.InteractiveConsole):
             },
         )
 
-        print("response from webhook: ", x.text)
+
         print(f"[Granted] recorded entry: {line}")
         self.buffer.append(line)
         source = "\n".join(self.buffer)
