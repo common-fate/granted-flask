@@ -1,5 +1,6 @@
 
 from __future__ import absolute_import, division, print_function
+from operator import truediv
 
 import os
 import sys
@@ -11,6 +12,7 @@ import getpass
 import os
 from flask.cli import with_appcontext
 
+token = ""
 
 class GrantedConsole(code.InteractiveConsole):
     def push(self, line):
@@ -33,12 +35,12 @@ class GrantedConsole(code.InteractiveConsole):
             url=url,
             json={"data": {"command": line}},
             headers={
-                "X-Granted-Request": "expired",
+                "X-Granted-Request": token,
                 "Content-Type": "application/json",
             },
         )
 
-        print("response from webhook: ", x.text)
+
         print(f"[Granted] recorded entry: {line}")
         self.buffer.append(line)
         source = "\n".join(self.buffer)
@@ -66,48 +68,51 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
 
     # Check if base url environment variable has been set before setting up the shell
     if 'GRANTED_WEBHOOK_URL' not in os.environ:
-        print('Granted deployment URL is not set, to continue please set this in your environment')
-        print('For instructions on finding the Deployment URL. Follow these docs: ')
-        # url = input("Enter your Granted deployment URL: ")
-
-        # # todo: validate input
-
-        # os.environ["GRANTED_WEBHOOK_URL"] = url
-
-        # print('done')
+        print('GRANTED_WEBHOOK_URL (Granted deployment URL) is not set, if you are seeing this contact your administrator.')
+        
         return
 
 
     print(
-        "As part of our promise to protect customer data, we use Common Fate Granted (https://granted.dev) to audit shell access."
+        "As part of our promise to protect customer data, we use Common Fate Granted (https://granted.dev) to audit shell access.\n"
     )
     print(
-        "Please enter an access token. If you don't have one, visit https://demo.granted.com/access/request/rul_2BtW97o6jTacUuzxNJZorACn5v0 to request one."
+        "Please enter an access token.\n"
     )
-    token = getpass.getpass("Access token: ")
-    console = GrantedConsole(local)
-    if readfunc is not None:
-        console.raw_input = readfunc  
-    else:
-        try:
-            import readline
-        except ImportError:
-            pass
-    
-    base_url = os.environ['GRANTED_WEBHOOK_URL']
-    url = base_url + "/access-token"
-    x = requests.post(
-        url=url,
+
+    retry = True
+
+    while retry:
+        token = getpass.getpass("Access token: ")
+        console = GrantedConsole(local)
+        if readfunc is not None:
+            console.raw_input = readfunc  
+        else:
+            try:
+                import readline
+            except ImportError:
+                pass
+            
         
-        headers={
-            "X-Granted-Request": token,
-            "Content-Type": "application/json",
-        },
-    )
-    if x.status_code != 200:
-        print("That token doesn't exist for your account or has expired: ", x.status_code)
-    else:
-        console.interact(banner, exitmsg)
+        base_url = os.environ['GRANTED_WEBHOOK_URL']
+        url = base_url + "/access-token"
+        x = requests.post(
+            url=url,
+            
+            headers={
+                "X-Granted-Request": token,
+                "Content-Type": "application/json",
+            },
+        )
+    
+        if x.status_code != 200:
+            print("That token doesn't exist for your account or has expired: ", x.status_code)
+            continue
+        else:
+            retry = False
+        
+    print('Correct token, entering Flask shell...\n')
+    console.interact(banner, exitmsg)
 
 
 

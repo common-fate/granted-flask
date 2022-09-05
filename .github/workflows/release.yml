@@ -25,7 +25,7 @@ jobs:
 
       - name: Install Poetry
         run: |
-          python .vendor/get-poetry.py
+          python .vendor/install-poetry.py
           echo "$HOME/.poetry/bin" >> $GITHUB_PATH
 
       - name: Cache Poetry virtualenv
