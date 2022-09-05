@@ -182,11 +182,13 @@ def test_command():
     """
 
     """
+    print('Testing Webhook URL set...\n')
     if 'GRANTED_WEBHOOK_URL' not in os.environ:
         print('GRANTED_WEBHOOK_URL (Granted deployment URL) is not set, if you are seeing this contact your administrator.')
         
         return
     else:
+        print('Testing URL connection...\n')
         base_url = os.environ['GRANTED_WEBHOOK_URL']
         url = base_url + "/test-setup"
         x = requests.post(
