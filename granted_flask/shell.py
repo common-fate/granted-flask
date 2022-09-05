@@ -14,6 +14,17 @@ from flask.cli import with_appcontext
 
 token = ""
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 class GrantedConsole(code.InteractiveConsole):
     def push(self, line):
         """Push a line to the interpreter.
@@ -164,3 +175,33 @@ def shell_command():
         interactive_hook()
 
     interact(banner=banner, local=ctx)
+
+@click.command('test', short_help='Runs tests against Granted Cloud to check setup has been successfully complete')
+@with_appcontext
+def test_command():
+    """
+
+    """
+    print('Testing Webhook URL set...\n')
+    if 'GRANTED_WEBHOOK_URL' not in os.environ:
+        print('GRANTED_WEBHOOK_URL (Granted deployment URL) is not set, if you are seeing this contact your administrator.')
+        
+        return
+    else:
+        print('Testing URL connection...\n')
+        base_url = os.environ['GRANTED_WEBHOOK_URL']
+        url = base_url + "/test-setup"
+        x = requests.post(
+            url=url,
+            
+            headers={
+                # "X-Granted-Request": token,
+                "Content-Type": "application/json",
+            },
+        )
+    
+        if x.status_code != 200:
+            print(bcolors.FAIL +'Failed to connect to Granted webhook. Have you setup your Granted Flask provider with a correct webhook url?'+ bcolors.ENDC)
+            
+        else:
+            print(bcolors.OKGREEN +'Setup Success!'+ bcolors.ENDC)
