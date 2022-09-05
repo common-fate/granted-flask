@@ -178,7 +178,7 @@ def shell_command():
 
 @click.command('test', short_help='Runs tests against Granted Cloud to check setup has been successfully complete')
 @with_appcontext
-def shell_command():
+def test_command():
     """
 
     """

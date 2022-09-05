@@ -18,3 +18,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.plugins."flask.commands"]
 "shell" = "granted_flask.shell:shell_command"
+"test" = "granted_flask.shell:test_command"
