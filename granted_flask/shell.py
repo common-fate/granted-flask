@@ -26,7 +26,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 class GrantedConsole(code.InteractiveConsole):
-    global token
+    
     def push(self, line):
         """Push a line to the interpreter.
 
@@ -47,7 +47,7 @@ class GrantedConsole(code.InteractiveConsole):
             url=url,
             json={"data": {"command": line}},
             headers={
-                "X-Granted-Request": token,
+                "X-Granted-Request": os.environ["TOKEN"],
                 "Content-Type": "application/json",
             },
         )
@@ -124,6 +124,9 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
             retry = False
         
     print('Correct token, entering Flask shell...\n')
+
+    #set the token in the environment to be used later
+    os.environ["TOKEN"] = token
     console.interact(banner, exitmsg)
 
 
