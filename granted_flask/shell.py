@@ -26,6 +26,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 class GrantedConsole(code.InteractiveConsole):
+    global token
     def push(self, line):
         """Push a line to the interpreter.
 
