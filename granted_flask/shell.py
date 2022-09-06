@@ -127,6 +127,17 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
 
     #set the token in the environment to be used later
     os.environ["TOKEN"] = token
+
+    url = base_url + "/events-recorder"
+    res = requests.post(
+        url=url,
+        json={"data": {"action": "Entered Shell"}},
+        headers={
+            "X-Granted-Request": os.environ["TOKEN"],
+            "Content-Type": "application/json",
+        },
+    )
+
     console.interact(banner, exitmsg)
 
 
