@@ -101,8 +101,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
 
         if x.status_code != 200:
             print(
-                "That token doesn't exist for your account or has expired: ",
-                x.status_code,
+                f"That token doesn't exist for your account or has expired (response code {x.status_code})",
             )
             continue
         else:
