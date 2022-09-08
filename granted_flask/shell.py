@@ -112,7 +112,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
             url=url,
             
             headers={
-                "X-Granted-Request": token,
+                "X-CommonFate-Access-Token": token,
                 "Content-Type": "application/json",
             },
         )
@@ -133,7 +133,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
         url=url,
         json={"data": {"action": "Entered Shell"}},
         headers={
-            "X-Granted-Request": os.environ["TOKEN"],
+            "X-CommonFate-Access-Token": os.environ["TOKEN"],
             "Content-Type": "application/json",
         },
     )
@@ -191,32 +191,3 @@ def shell_command():
 
     interact(banner=banner, local=ctx)
 
-@click.command('test', short_help='Runs tests against Granted Cloud to check setup has been successfully complete')
-@with_appcontext
-def test_command():
-    """
-
-    """
-    print('Testing Webhook URL set...\n')
-    if 'GRANTED_WEBHOOK_URL' not in os.environ:
-        print('GRANTED_WEBHOOK_URL (Granted deployment URL) is not set, if you are seeing this contact your administrator.')
-        
-        return
-    else:
-        print('Testing URL connection...\n')
-        base_url = os.environ['GRANTED_WEBHOOK_URL']
-        url = base_url + "/test-setup"
-        x = requests.post(
-            url=url,
-            
-            headers={
-                # "X-Granted-Request": token,
-                "Content-Type": "application/json",
-            },
-        )
-    
-        if x.status_code != 200:
-            print(bcolors.FAIL +'Failed to connect to Granted webhook. Have you setup your Granted Flask provider with a correct webhook url?'+ bcolors.ENDC)
-            
-        else:
-            print(bcolors.OKGREEN +'Setup Success!'+ bcolors.ENDC)
