@@ -44,7 +44,7 @@ class GrantedConsole(code.InteractiveConsole):
             url=url,
             json={"data": {"command": line}},
             headers={
-                "X-Granted-Request": self.token,
+                "X-CommonFate-Access-Token": self.token,
                 "Content-Type": "application/json",
             },
         )
