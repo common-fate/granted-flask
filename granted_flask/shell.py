@@ -8,7 +8,7 @@ import click
 import requests
 import getpass
 import os
-import urllib.parse
+import posixpath
 from flask.cli import with_appcontext
 
 
@@ -36,7 +36,11 @@ class GrantedConsole(code.InteractiveConsole):
 
         """
         base_url = os.environ["GRANTED_WEBHOOK_URL"]
-        url = urllib.parse.urljoin(base_url, "events-recorder")
+        url = posixpath.join(base_url, "events-recorder")
+
+        if os.environ["GRANTED_DEBUG"] == "true":
+            print(f"[Granted] recorded entry: {line} (url={url})")
+
         x = requests.post(
             url=url,
             json={"data": {"command": line}},
@@ -46,7 +50,6 @@ class GrantedConsole(code.InteractiveConsole):
             },
         )
 
-        print(f"[Granted] recorded entry: {line}")
         self.buffer.append(line)
         source = "\n".join(self.buffer)
         more = self.runsource(source, self.filename)
@@ -89,7 +92,10 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
         token = getpass.getpass("Access token: ")
 
         base_url = os.environ["GRANTED_WEBHOOK_URL"]
-        url = urllib.parse.urljoin(base_url, "access-token/verify")
+        url = posixpath.join(base_url, "/access-token/verify")
+
+        if os.environ["GRANTED_DEBUG"] == "true":
+            print(f"verifying access token (url={url}")
 
         x = requests.post(
             url=url,
@@ -120,7 +126,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
         except ImportError:
             pass
 
-    url = urllib.parse.urljoin(base_url, "events-recorder")
+    url = posixpath.join(base_url, "events-recorder")
     res = requests.post(
         url=url,
         json={"data": {"action": "Entered Shell"}},
