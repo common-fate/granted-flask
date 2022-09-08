@@ -1,6 +1,4 @@
-
 from __future__ import absolute_import, division, print_function
-from operator import truediv
 
 import os
 import sys
@@ -12,21 +10,16 @@ import getpass
 import os
 from flask.cli import with_appcontext
 
-token = ""
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 class GrantedConsole(code.InteractiveConsole):
-    
+    def __init__(self, locals=None, filename="<console>", token=None):
+        """
+        Sets up the console with a token to use for sending audited
+        events back to the Granted webhook URL.
+        """
+        self.token = token
+        super().__init__(locals=locals, filename=filename)
+
     def push(self, line):
         """Push a line to the interpreter.
 
@@ -41,19 +34,28 @@ class GrantedConsole(code.InteractiveConsole):
         with in some way (this is the same as runsource()).
 
         """
-        base_url = os.environ['GRANTED_WEBHOOK_URL']
+        base_url = os.environ["GRANTED_WEBHOOK_URL"]
         url = base_url + "/events-recorder"
+
+        if os.environ["GRANTED_DEBUG"] == "true":
+            print(f"[Granted] recorded entry: {line} (url={url})")
+
         x = requests.post(
             url=url,
             json={"data": {"command": line}},
             headers={
-                "X-Granted-Request": os.environ["TOKEN"],
+                "X-CommonFate-Access-Token": self.token,
                 "Content-Type": "application/json",
             },
         )
 
+        # if we don't get a 201 response, something has failed, so exit the shell.
+        if x.status_code != 201:
+            print(
+                f"Your Access Token has expired. Exiting the shell now (response code {x.status_code})"
+            )
+            sys.exit(1)
 
-        print(f"[Granted] recorded entry: {line}")
         self.buffer.append(line)
         source = "\n".join(self.buffer)
         more = self.runsource(source, self.filename)
@@ -79,61 +81,63 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
     """
 
     # Check if base url environment variable has been set before setting up the shell
-    if 'GRANTED_WEBHOOK_URL' not in os.environ:
-        print('GRANTED_WEBHOOK_URL (Granted deployment URL) is not set, if you are seeing this contact your administrator.')
-        
+    if "GRANTED_WEBHOOK_URL" not in os.environ:
+        print(
+            "GRANTED_WEBHOOK_URL (Granted deployment URL) is not set, if you are seeing this contact your administrator."
+        )
         return
-
 
     print(
         "As part of our promise to protect customer data, we use Common Fate Granted (https://granted.dev) to audit shell access.\n"
     )
-    print(
-        "Please enter an access token.\n"
-    )
+    print("Please enter an access token.\n")
 
     retry = True
 
     while retry:
         token = getpass.getpass("Access token: ")
-        console = GrantedConsole(local)
-        if readfunc is not None:
-            console.raw_input = readfunc  
-        else:
-            try:
-                import readline
-            except ImportError:
-                pass
-            
-        
-        base_url = os.environ['GRANTED_WEBHOOK_URL']
-        url = base_url + "/access-token"
+
+        base_url = os.environ["GRANTED_WEBHOOK_URL"]
+        url = base_url + "/access-token/verify"
+
+        if os.environ["GRANTED_DEBUG"] == "true":
+            print(f"verifying access token (url={url}")
+
         x = requests.post(
             url=url,
-            
             headers={
                 "X-CommonFate-Access-Token": token,
                 "Content-Type": "application/json",
             },
         )
-    
+
         if x.status_code != 200:
-            print("That token doesn't exist for your account or has expired: ", x.status_code)
+            print(
+                f"That token doesn't exist for your account or has expired (response code {x.status_code})",
+            )
             continue
         else:
             retry = False
-        
-    print('Correct token, entering Flask shell...\n')
 
-    #set the token in the environment to be used later
-    os.environ["TOKEN"] = token
+    print("[✔] Entering Python shell...")
+
+    # Setup the GrantedConsole interactive interpreter
+    # and perform the same readfunc logic as the built-in code.interact() method does.
+    console = GrantedConsole(locals=local, token=token)
+    if readfunc is not None:
+        console.raw_input = readfunc
+    else:
+        try:
+            import readline
+        except ImportError:
+            pass
 
     url = base_url + "/events-recorder"
     res = requests.post(
         url=url,
         json={"data": {"action": "Entered Shell"}},
         headers={
-            "X-CommonFate-Access-Token": os.environ["TOKEN"],
+            "X-CommonFate-Access-Token": token,
             "Content-Type": "application/json",
         },
     )
@@ -141,8 +145,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
     console.interact(banner, exitmsg)
 
 
-
-@click.command('shell', short_help='Runs a shell in the app context.')
+@click.command("shell", short_help="Runs a shell in the app context.")
 @with_appcontext
 def shell_command():
     """Runs an interactive Python shell in the context of a given
@@ -164,10 +167,10 @@ def shell_command():
 
     # Support the regular Python interpreter startup script if someone
     # is using it.
-    startup = os.environ.get('PYTHONSTARTUP')
+    startup = os.environ.get("PYTHONSTARTUP")
     if startup and os.path.isfile(startup):
-        with open(startup, 'r') as f:
-            eval(compile(f.read(), startup, 'exec'), ctx)
+        with open(startup, "r") as f:
+            eval(compile(f.read(), startup, "exec"), ctx)
 
     ctx.update(app.make_shell_context())
 
@@ -190,4 +193,3 @@ def shell_command():
         interactive_hook()
 
     interact(banner=banner, local=ctx)
-
