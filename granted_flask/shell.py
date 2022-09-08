@@ -49,6 +49,13 @@ class GrantedConsole(code.InteractiveConsole):
             },
         )
 
+        # if we don't get a 201 response, something has failed, so exit the shell.
+        if x.status_code != 201:
+            print(
+                f"Your Access Token has expired. Exiting the shell now (response code {x.status_code})"
+            )
+            sys.exit(1)
+
         self.buffer.append(line)
         source = "\n".join(self.buffer)
         more = self.runsource(source, self.filename)
