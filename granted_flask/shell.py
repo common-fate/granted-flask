@@ -112,7 +112,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
             url=url,
             
             headers={
-                "X-Granted-Request": token,
+                "X-CommonFate-Access-Token": token,
                 "Content-Type": "application/json",
             },
         )
@@ -133,7 +133,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
         url=url,
         json={"data": {"action": "Entered Shell"}},
         headers={
-            "X-Granted-Request": os.environ["TOKEN"],
+            "X-CommonFate-Access-Token": os.environ["TOKEN"],
             "Content-Type": "application/json",
         },
     )
