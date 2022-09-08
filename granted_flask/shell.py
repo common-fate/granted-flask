@@ -8,7 +8,6 @@ import click
 import requests
 import getpass
 import os
-import posixpath
 from flask.cli import with_appcontext
 
 
@@ -36,7 +35,7 @@ class GrantedConsole(code.InteractiveConsole):
 
         """
         base_url = os.environ["GRANTED_WEBHOOK_URL"]
-        url = posixpath.join(base_url, "events-recorder")
+        url = base_url + "/events-recorder"
 
         if os.environ["GRANTED_DEBUG"] == "true":
             print(f"[Granted] recorded entry: {line} (url={url})")
@@ -92,7 +91,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
         token = getpass.getpass("Access token: ")
 
         base_url = os.environ["GRANTED_WEBHOOK_URL"]
-        url = posixpath.join(base_url, "/access-token/verify")
+        url = base_url + "/access-token/verify"
 
         if os.environ["GRANTED_DEBUG"] == "true":
             print(f"verifying access token (url={url}")
@@ -126,7 +125,7 @@ def interact(banner=None, readfunc=None, local=None, exitmsg=None):
         except ImportError:
             pass
 
-    url = posixpath.join(base_url, "events-recorder")
+    url = base_url + "/events-recorder"
     res = requests.post(
         url=url,
         json={"data": {"action": "Entered Shell"}},
